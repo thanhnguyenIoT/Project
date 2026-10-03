@@ -1,0 +1,13 @@
+{
+    "autodeskProduct": "Fusion",
+    "type": "addin",
+    "id": "5d2b1f3e-6c0a-4f7e-9a51-3b8e2c4d7f10",
+    "author": "thanhnguyenIoT",
+    "description": {
+        "": "SolidWorks-style assembly mates (Coincident, Concentric, Distance, Angle, Parallel, Perpendicular, Lock) built on Fusion joints."
+    },
+    "version": "1.0.0",
+    "runOnStartup": true,
+    "supportedOS": "windows|mac",
+    "editEnabled": true
+}
