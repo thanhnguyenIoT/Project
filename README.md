@@ -34,9 +34,10 @@ giống với lệnh **Mate** của SolidWorks:
    `~/Library/Application Support/Autodesk/Autodesk Fusion 360/API/AddIns` trên macOS.)
 3. Chọn **SWMates** → **Run**. Tích *Run on Startup* để tự chạy khi mở Fusion.
 4. Hai lệnh **Mate (SolidWorks)** và **Mate Manager** xuất hiện ở:
-   - panel riêng **SW MATES** trên tab **ASSEMBLE** (giao diện Fusion mới, cạnh
+   - panel riêng **SW MATES** trên tab **ASSEMBLY** (giao diện Fusion mới, cạnh
      *RELATIONSHIPS* / *MOTION*), hoặc trên tab **SOLID** với giao diện cũ;
    - và luôn có trong **UTILITIES → ADD-INS** (bấm mũi tên ▾ dưới ADD-INS).
+   Khi bấm **Run** thủ công, add-in hiện hộp thoại cho biết các nút nằm ở đâu.
 
    Vị trí thực tế được ghi trong **Text Commands** (File → View → Show Text Commands)
    khi add-in khởi động.

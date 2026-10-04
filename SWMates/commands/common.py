@@ -6,14 +6,15 @@ import traceback
 import adsk.core
 import adsk.fusion
 
-WORKSPACE_ID = 'FusionSolidEnvironment'
-# Own "SW MATES" panel, placed on the Assemble tab (new Fusion UI) or the Solid tab.
-OWN_PANEL_ID = 'SWMatesPanel'
+# Own "SW MATES" panel on every Assemble/Assembly toolbar tab (new Fusion UI), or on
+# the Solid tab with the classic UI. Tabs are searched across all workspaces because
+# the new assembly documents use their own toolbar (ASSEMBLY / MANAGE / UTILITIES).
+OWN_PANEL_PREFIX = 'SWMatesPanel_'
 OWN_PANEL_NAME = 'SW MATES'
-ASSEMBLE_TAB_HINTS = ('assemble', 'assembly')
+ASSEMBLE_TAB_HINTS = ('assem',)
 FALLBACK_TAB_ID = 'SolidTab'
-# Always also listed under UTILITIES > ADD-INS, which exists in every UI layout.
-ADDINS_PANEL_ID = 'SolidScriptsAddinsPanel'
+# The buttons are also added to every UTILITIES > ADD-INS panel.
+ADDINS_PANEL_HINT = 'addins'
 RESOURCES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'resources')
 
 # Fusion only keeps weak references to event handlers: keep them alive here.
@@ -36,41 +37,40 @@ def show_error(prefix='SW Mates'):
     ui().messageBox('{}\n\n{}'.format(prefix, traceback.format_exc()))
 
 
-def _workspace():
-    return ui().workspaces.itemById(WORKSPACE_ID)
+def _items(collection):
+    return [collection.item(i) for i in range(collection.count)]
 
 
-def _target_tab(ws):
-    tabs = ws.toolbarTabs
-    for i in range(tabs.count):
-        tab = tabs.item(i)
-        if any(h in tab.id.lower() for h in ASSEMBLE_TAB_HINTS):
-            return tab
-    return tabs.itemById(FALLBACK_TAB_ID)
+def _assemble_tabs():
+    tabs = [t for t in _items(ui().allToolbarTabs)
+            if any(h in t.id.lower() or h in t.name.lower() for h in ASSEMBLE_TAB_HINTS)]
+    if not tabs:
+        fallback = ui().allToolbarTabs.itemById(FALLBACK_TAB_ID)
+        if fallback is not None:
+            tabs = [fallback]
+    return tabs
 
 
-def _own_panel(create):
-    ws = _workspace()
-    tab = _target_tab(ws) if ws is not None else None
-    if tab is None:
-        return None
-    panel = tab.toolbarPanels.itemById(OWN_PANEL_ID)
-    if panel is None and create:
-        panel = tab.toolbarPanels.add(OWN_PANEL_ID, OWN_PANEL_NAME, '', False)
-    return panel
+def _own_panels(create):
+    panels = []
+    for tab in _assemble_tabs():
+        pid = OWN_PANEL_PREFIX + tab.id
+        panel = tab.toolbarPanels.itemById(pid)
+        if panel is None and create:
+            panel = tab.toolbarPanels.add(pid, OWN_PANEL_NAME, '', False)
+        if panel is not None:
+            panels.append(panel)
+    return panels
+
+
+def _addins_panels():
+    return [p for p in _items(ui().allToolbarPanels)
+            if ADDINS_PANEL_HINT in p.id.lower() and not p.id.startswith(OWN_PANEL_PREFIX)]
 
 
 def target_panels(create=False):
-    """Panels holding the add-in buttons: (own panel, Utilities > Add-Ins)."""
-    panels = []
-    own = _own_panel(create)
-    if own is not None:
-        panels.append(own)
-    ws = _workspace()
-    addins = ws.toolbarPanels.itemById(ADDINS_PANEL_ID) if ws is not None else None
-    if addins is not None:
-        panels.append(addins)
-    return panels
+    """Panels holding the add-in buttons: own SW MATES panels + ADD-INS panels."""
+    return _own_panels(create) + _addins_panels()
 
 
 def add_command(cmd_id, name, tooltip, icon_folder, created_handler, promote=False):
@@ -84,7 +84,7 @@ def add_command(cmd_id, name, tooltip, icon_folder, created_handler, promote=Fal
     for panel in target_panels(create=True):
         if panel.controls.itemById(cmd_id) is None:
             control = panel.controls.addCommand(cmd_def)
-            if panel.id == OWN_PANEL_ID:
+            if panel.id.startswith(OWN_PANEL_PREFIX):
                 control.isPromoted = promote
                 control.isPromotedByDefault = promote
     return cmd_def
@@ -101,18 +101,19 @@ def remove_command(cmd_id):
 
 
 def remove_panel():
-    panel = _own_panel(create=False)
-    if panel is not None and panel.controls.count == 0:
-        panel.deleteMe()
+    for panel in _own_panels(create=False):
+        if panel.controls.count == 0:
+            panel.deleteMe()
 
 
-def panel_location():
-    """Human readable location of the add-in buttons, for the startup log."""
-    own = _own_panel(create=False)
-    tab = _target_tab(_workspace()) if own is not None else None
-    if tab is not None:
-        return 'tab {} > panel {}'.format(tab.name, OWN_PANEL_NAME)
-    return 'UTILITIES > ADD-INS'
+def placement_report():
+    """Where the buttons ended up, plus all toolbar tabs (for troubleshooting)."""
+    lines = ['SW MATES panel: ' + (', '.join('tab "{}" ({})'.format(t.name, t.id) for t in _assemble_tabs())
+                                   or 'không tìm thấy tab Assembly')]
+    lines.append('ADD-INS panels: ' + ', '.join(p.id for p in _addins_panels()))
+    lines.append('Tất cả toolbar tabs: ' + ', '.join('{}={}'.format(t.id, t.name)
+                                                     for t in _items(ui().allToolbarTabs)))
+    return '\n'.join(lines)
 
 
 def log(message):

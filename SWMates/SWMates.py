@@ -13,8 +13,11 @@ def run(context):
     try:
         for cmd in _COMMANDS:
             cmd.start()
-        common.log('SW Mates: đã nạp. Nút lệnh nằm ở {} và UTILITIES > ADD-INS.'.format(
-            common.panel_location()))
+        report = common.placement_report()
+        common.log('SW Mates: đã nạp.\n' + report)
+        if not (isinstance(context, dict) and context.get('IsApplicationStartup')):
+            # Started by hand from Scripts and Add-Ins: say where the buttons are.
+            common.ui().messageBox('SW Mates đã chạy.\n\n' + report, 'SW Mates')
     except Exception:
         common.show_error('SW Mates: lỗi khi khởi động add-in')
 
