@@ -13,6 +13,8 @@ def run(context):
     try:
         for cmd in _COMMANDS:
             cmd.start()
+        common.log('SW Mates: đã nạp. Nút lệnh nằm ở {} và UTILITIES > ADD-INS.'.format(
+            common.panel_location()))
     except Exception:
         common.show_error('SW Mates: lỗi khi khởi động add-in')
 
@@ -21,6 +23,7 @@ def stop(context):
     try:
         for cmd in _COMMANDS:
             cmd.stop()
+        common.remove_panel()
         common.handlers.clear()
     except Exception:
         common.show_error('SW Mates: lỗi khi dừng add-in')

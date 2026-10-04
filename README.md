@@ -14,7 +14,12 @@ giống với lệnh **Mate** của SolidWorks:
 - **Mate Manager**: xem danh sách mate của từng cặp component, xóa từng mate (joint được
   dựng lại từ các mate còn lại), giống thư mục *Mates* trong cây FeatureManager.
 
-> Vì sao không dùng thẳng "Assembly Constraints" mới của Fusion? Tính năng *Constrain
+> **Lưu ý:** từ bản cập nhật 2025, Fusion đã có sẵn nhóm lệnh **ASSEMBLE → RELATIONSHIPS →
+> Constrain Components** (Align, Angle, Center, Tangent Constraint) làm việc tương tự Mate
+> của SolidWorks. Nếu bản Fusion của bạn đã có các lệnh này, nên ưu tiên dùng chúng; add-in
+> này hữu ích cho bản Fusion cũ hoặc khi bạn quen quy trình/hộp thoại Mate của SolidWorks.
+>
+> Vì sao add-in không dùng thẳng "Assembly Constraints" mới của Fusion? Tính năng *Constrain
 > Components* (2025) có API nhưng đang ở trạng thái **Preview** và Autodesk đã thông báo
 > sẽ thay thế toàn bộ, không nên dùng cho công cụ lâu dài. Add-in này dựa trên **Joint
 > API** ổn định, nên chạy được trên mọi bản Fusion hiện tại.
@@ -28,8 +33,13 @@ giống với lệnh **Mate** của SolidWorks:
    `%appdata%\Autodesk\Autodesk Fusion 360\API\AddIns` trên Windows /
    `~/Library/Application Support/Autodesk/Autodesk Fusion 360/API/AddIns` trên macOS.)
 3. Chọn **SWMates** → **Run**. Tích *Run on Startup* để tự chạy khi mở Fusion.
-4. Hai lệnh **Mate (SolidWorks)** và **Mate Manager** xuất hiện ở
-   **Design → Solid → Assemble** (lệnh Mate được ghim sẵn lên thanh công cụ).
+4. Hai lệnh **Mate (SolidWorks)** và **Mate Manager** xuất hiện ở:
+   - panel riêng **SW MATES** trên tab **ASSEMBLE** (giao diện Fusion mới, cạnh
+     *RELATIONSHIPS* / *MOTION*), hoặc trên tab **SOLID** với giao diện cũ;
+   - và luôn có trong **UTILITIES → ADD-INS** (bấm mũi tên ▾ dưới ADD-INS).
+
+   Vị trí thực tế được ghi trong **Text Commands** (File → View → Show Text Commands)
+   khi add-in khởi động.
 
 Mẹo: gán phím tắt `M` cho lệnh Mate (rê chuột lên lệnh → menu *…* → *Change Keyboard
 Shortcut*) để thao tác giống SolidWorks.
